@@ -1,0 +1,1 @@
+python3 C:/dev/cura-117/prj/githook/CheckCodingStandards.py c:\dev\cura-117\prj\cura10303\unit4\cura\drv\server\dataaccess\darostercodeandtime.cls fullinput repeat

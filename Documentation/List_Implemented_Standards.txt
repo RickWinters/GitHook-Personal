@@ -1,0 +1,92 @@
+GENERAL:
+- Run statement only on .p or .w files
+- `delete object [variable] no-error.` missing in class methods
+  --> Variables of type 'handle' will return "Handle [varname] not cleaned up (check spelling (capital sensitive))"
+  --> all other variables whos type is not in the following list will return "Variable [varname] not cleaned up"
+       ["date", "integer", "character", "int64", "datetime", "datetime-tz", "logical", "decimal", "longchar", "rowid"]
+- Any line that contains "write-xml" will return a warning "Delete write-xml statement"
+  --> There could be cases where this code is actually correct.
+- Any line that contains "view-as alert-box" will return a warning "Delete alert-box statement"
+  --> Could be a false positive, however i (Rick) use alert-boxes a lot when developing.
+- No single quotes in hardcoded text.
+- Includes of tt's and ds's require @tocompile statement at top of file.
+  --> checks for @mastertocompile on each file starting with "ds" (Datasets).
+- Outlining of operators in an if statement per block
+    if a and b and (c or d) -->
+    if ((condition1 == true) and
+        (condition2 <> true) and
+        ((conditionfour  >= 0) or   --> different block, seperate outlining
+         (conditionseven <= 0))) then ....
+- Outlining of subsitute parameters with first letter in substitute string
+- Check for requirements of quoter() in substitute parameter for characters (only on local variables)
+        define variable fieldvalue as character no-undo.
+        whereclause = substitute("|for each &1,
+                                  |    each &2 where &2.field = &3
+                                  |              and &2.oeuae = &4",
+                                  |ttname1,
+                                  |ttname2,
+            quoter required -->   |quoter(fieldvalue),
+                                  |"hardcoded string here").
+
+
+NAMING:
+- `define variable [varname] as [type]` must be outlined correctly according to first line within methods, procedures, catch blocks and functions.
+
+QUERIES:
+- either "no-lock" or "exclusive-lock" missing at statements that start with "for each" or "for first"
+  --> only checks on queries for db tables or buffers thereof
+- Do not use `use-index`
+- outlining of keywords in a 'for each' statement according to the following rules:
+    - 'where' --> if there is one, must be on same line of 'for each'
+    - ' = ' must be outlined with first ' = ' in for each statement
+         for each table where table.field  =| value
+                          and table.field2 =| value2    --> correct
+                          and table.fieldthree = value3 --> wrong
+    - 'and' --> right-outlined of 'where' keyword on new line:
+         for each table where| table.field  = value
+                          and| table.field2 = value2 --> correct
+            and| table.field3               = value3 --> wrong
+    - 'or' --> right-outlined of 'where' keyword on new line:
+    - 'no-lock' --> left-outlined of 'where' keyword on new line for queries starting with 'for'
+                --> left-outlined + 2 spaces of 'find' for queries starting with 'find':
+        for [each / first] table |where table.field  = value
+                                 |  and table.field2 = value2
+                                 |no-lock.
+        |find [first, last] table where table.field  = value
+        |                           and table.field2 = value2
+        |__no-lock
+    - 'exclusive-lock' --> left-outlined of 'where' keyword on new line for queries starting with 'for'
+                       --> left-outlined + 2 spaces of 'find' for queries starting with 'find'
+    - 'break by' --> 1 tab (2 spaces) away from 'for each'
+         |for each table where table.field  = value
+         |                 and table.field2 = value2
+         |               no-lock
+         |**break by table.field2
+    - 'by' --> if 'break by' is user earlier than outlined on 'by' of 'break by'
+                else 1 tab (2 spaces away from 'for each'
+         for each table where table.field  = value
+                          and table.field2 = value2
+                        no-lock
+           break |by table.field
+                 |by table.field2 --> correct
+           by table.anotherfield --> wrong
+
+         |for each table where table.field  = value
+         |                 and table.field2 = value2
+         |               no-lock
+         |**by table.field2 --> correct
+            by table.field
+    - 'on error' --> 1 tab (2 spaces) away from 'for each'
+         |for each table where table.field  = value
+         |               no-lock
+         |**on error undo, throw:
+
+STATEMENTS:
+- `Then (do)` not on seperate line in if statement
+- Assign statement outlined
+  --> checks if there is no variable assignment on same line in assignment --> to be removed
+  --> checks if " = " is correctly outlined in multiple assignments
+
+ERRORHANDLING:
+- use 'block-level on error undo, throw' as implemented coding standard
+  --> returns a warning at every line with 'routine-level on error undo, throw.' to use block-level instead

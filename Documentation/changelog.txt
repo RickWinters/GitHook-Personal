@@ -1,0 +1,238 @@
+01-07-2021
+sortWarnings(Reversed) is now per file instead of for all files
+
+15-06-2021
+Substitute outlining now stops at closing bracket of substitute( --> fixes a bug where errors where reported within an assign block
+Fixed a bug where 'assignemnt must be on next line of assign statement' was given with variables starting with 'assign' in the variable name
+----
+Changed outlining of queries so that ['no-lock' / 'exclusive-lock'] must be left-outlined plus 2 spaced for 'find' on queries starting with 'find'
+instead of left-outlined with 'where'.
+Left-outlining with 'where' still counts for queries starting with 'for'.
+@HKM, thanks for the feedback
+
+
+07-06-2021
+implemented outlining of substitute blocks and requirements for quoter of characters (only on local variables).
+
+26-05-2021
+Fixed a small bug
+
+25-05-2021
+Implemented sysarg 'repeat'. To ask to recheck the files at the end.
+Will be answered with 'n' in git-bash automatically, as an EOFError catch since git-bash doesnt handle input prompt correctly.
+
+21-05-2021
+Bugfixes of false positive on queries "'where' not on same line as [querystart]" when in second query of statement.
+Improved query warning messages.
+----------
+implemented new systarg 'fullFile' to show all warnings regardless.
+implemented logic to only give warnings for the changed lines of the code by default, unless keyword fullFile or fullInput is given.
+Showing only warnings for changed lines only works for files that are staged for commit (after 'git add'), otherwise all warnings will be given anyway.
+
+17-05-2021
+On any changed file starting with "ds" and ending in ".i" (Datasets) a warning is given if the @mastertocompile statement is missing
+Checking for @(master)tocompile statements on files starting with "tt" and ending with ".i" is ignored
+----
+Fixed bug where warning of 'where' keyword not on same line as querystart is given when no 'where' is used.
+----
+Added sysargumenst "sortWarnings" and "sortWarningsReversed" (capital-sensitive). if "sortWarnings" is given the generated
+will be output from lowest line-number to highest. "sortWarningsReversed" does the reverse.
+
+
+19-04-2021
+put lists in OperatorLists and tablelist.txt in CommonLists.py
+-----
+keyword outlining for queries now also applies to " find first " and " find last "
+-----
+reworked handling of sysargs
+1st argument must be either
+    'help', --> print out help
+    'askInput', --> user gets prompt to enter filename or full path
+    any filename or full path depending on 2nd argument --> this is used instead of user prompt
+
+2nd argument is either:
+    'input',
+    'fullinput' --> both have same functionality as before.
+
+this makes it easier to extend sysarg handling in the future
+Updated documentation along with it.
+-----
+Added example batch files on how to call this script with different options.
+
+
+13-04-2021
+extend warning message when handle net cleaned up
+
+08-04-2021
+add kennys tables to tablelist.txt. Check on no-lock or Exclusive-lock will be done on for-each/first on kennys-tables as well.
+------
+Fixed bug where warning "QUERIES, where statement not on same line as for each" got given in the following example:
+    for each b-temptable: --> no where statement at all, warning not necessary
+        //do something
+    end
+----
+Changed "no-lock / exclusive-lock requirement" on db tables for queries so that joined queried are checkd as well. example:
+    for each oorg,  <-- already checked for -lock
+        first bbom, <-- now checked as well
+        each wtyp:  <-- now checked as well.
+        //do something
+    end.
+----
+Added GENERAL: If Then statement alignment:
+within an if-then statement all operators must be outlined with first operator. Per internal block of statements.
+if a and b and (c or d) -->
+if ((condition1 == true) and
+    (condition2 <> true) and
+    ((conditionfour  >= 0) or   --> different block, seperate outlining
+     (conditionseven <= 0))) then ....
+
+26-03-2021
+Tracking of class method variable cleanup has been updated.
+Handles that are assigned a value with ":get-buffer-handle(" or ":before-buffer" are not tracked anymore
+
+Outlining checks on 'for each' now works for 'for first' as well. As well as multiple table queries in one block.
+i.e. "for first table,
+          each something".
+Outlining of " = " now checks right-outlining of all binary operators [" = ", " >= ", " <= ", " > ", " < ", " <> "] withing a block
+
+
+25-03-2021
+Implemented Outlining of For each keywords.
+QUERIES: allign "lock" phrase with "where" and "on error" / "by" phrase with "for"
+implemented rules:
+ - 'where' --> if there is one, must be on same line of 'for each'
+ - ' = ' must be outlined with first ' = ' in for each statement
+     for each table where table.field  =| value
+                      and table.field2 =| value2    --> correct
+                      and table.fieldthree = value3 --> wrong
+ - 'and' --> right-outlined of 'where' keyword on new line:
+     for each table where| table.field  = value
+                      and| table.field2 = value2 --> correct
+         and| table.field3               = value3 --> wrong
+ - 'or' --> right-outlined of 'where' keyword on new line:
+ - 'no-lock' --> left-outlined of 'where' keyword on new line:
+     for each table |where table.field  = value
+                    |  and table.field2 = value2
+                    |no-lock.
+ - 'exclusive-lock' --> left-outlined of 'where' keyword on new line:
+ - 'break by' --> 1 tab (2 spaces) away from 'for each'
+     |for each table where table.field  = value
+     |                 and table.field2 = value2
+     |               no-lock
+     |**break by table.field2
+ - 'by' --> if 'break by' is used earlier than outlined on 'by' of 'break by'
+            else 1 tab (2 spaces away from 'for each'
+     for each table where table.field  = value
+                      and table.field2 = value2
+                    no-lock
+       break |by table.field
+             |by table.field2 --> correct
+       by table.anotherfield --> wrong
+
+     |for each table where table.field  = value
+     |                 and table.field2 = value2
+     |               no-lock
+     |**by table.field2 --> correct
+        by table.field
+ - 'on error' --> 1 tab (2 spaces) away from 'for each'
+     |for each table where table.field  = value
+     |               no-lock
+     |**on error undo, throw:
+
+15-03-2021
+RWI
+Add ERRORHANDLING: use 'block-level on error undo, throw' as implemented coding standard
+--> returns a warning at every line with 'routine-level on error undo, throw.' to use block-level instead
+
+09-03-2021
+RWI
+Fixed bug in General: Includes of tt and ds's need to have @tocompile statement --> fixed capital letter insensitivity and improved warning message
+
+03-03-2021
+RWI
+implement that when sysargs 'input' or 'fullinput' are given but no filename / path, the user is prompted to give a filename / path.
+
+02-03-2021
+RWI
+Fix bug where, if run from githook, path to tablelist.txt could not be found
+fix spelling mistake in GENERAL: includeTTorDSMusteHaveToCmplieStatement
+
+01-03-2021
+HKL
+Add rowid as non-cleanup variable
+
+IF THEN checking:
+Prevent "orderregelBufferHandle::" is seen as "or" in
+      if ((lookup(soortFinaniering,soortfinancieringlijst ) = 0) and
+          (soortfinancieringlijst <> "")) then 
+        orderregelBufferHandle::RegelStatus = OrderregelStatus:WACHT.
+
+RWI
+Implemented "GENERAL: No single quotes in hardcoded text"
+Implemented "GENERAL: Includes of tt and ds's need to have @tocompile statement"
+
+
+26-02-2021
+RWI
+Removed no buffer in can-find rule. It is allowed.
+Added tablelist.txt, a list of all db tables in cura.db
+QUERIES: Lock statement at queries now checks for 'no-lock' or 'exclusive-lock' on queries in cura db or buffers thereof.
+         kennys db to be implemented.
+Added sysarg "help" will print output of docstrings for the File object and codingstandards classes
+
+23-02-2021
+HKL
+add longchar to datatypes not to be cleaned up
+
+16-02-2021
+Small bugfix in STATEMENTS: assign statement allignment check
+
+15-02-2021
+Ordered files in multiple folders.
+Added QUERIES: do not use 'use-index'
+added QUERIES: do not use buffers in can-find
+
+12-02-2021
+Rick Winters:
+Ignore newline character in path.txt leading to invalid repo
+Handle Sys-args before opening Repo. Repo only opened if required, when no file is given.
+Fix False Positive Naming: define variable not outlined correctly on bronorder.p line 43 --> added 'procedure' and 'function' to kepwords where check is reset
+Fix False Positive Stametents: 'Then' statement not found at end of 'if' on writetestfiles.p:287 --> added check if nextline starts with ':', accounts for internal property access
+Implemented assign outline check. Assign statements must start on next line of keyword 'assign', must be outlined at ' = '
+
+11-02-2021
+Harry Kleinsmiede:
+Implemented sysarg "fullinput".
+Allows full path to file to be given, uses only that file withouth checking set repo
+
+Rick Winters:
+Implemented use of path.txt
+Create a file called "path.txt" in the same folder as CheckCodingStandards.py and add 1 line with the path to your cura project.
+The script will look for this file and read the first line and use that as Cura project repo.
+If file not found or file empty, location defaults to c:/dev/cura-117/prj/cura10303
+
+10-02-2021
+Added possibility to call CheckCodingStandards on a specific file.
+open console and call "python CheckCodingStandards.py input [filename]"
+Second argument must be empty or "input", if input the filename is used to check that file. 
+Argument for filename can be lowercase. 
+
+08-02-2021:
+Initial push after demo. 
+coding standards so far implemented (based on https://fierit-cura.atlassian.net/wiki/spaces/RC/pages/384762016/Coding+Standards+Old+see+comment)
+GENERAL:
+	--> Run statements only on .p or .w files
+	--> ds[name]Handle variables ar checked for cleanup: delete object [varname] no-error in finally block
+	--> other variables pointing to an object instance are checked for cleanup 
+	--> no varname:write-xml statements
+	--> no message [some message] view-as alert-box statements
+NAMING:
+	--> alligning of "as" and "no-undo" in class methods based on first line in class methods or catch blocks within class methods. 
+QUERIES:
+	--> no **-lock statement on queries
+		Works only on queries starting with "for each" or "for first" and on buffer called "b-XXXX" (needs work)
+STATEMENTS:
+	--> "then" or "then do:" in if statement must be on same line as latest line in condition. 
+		if a = 1 and
+           b = 2 and
+           c = 3 then do:  --> this is correct
