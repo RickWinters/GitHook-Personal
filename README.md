@@ -1,8 +1,10 @@
 # Introduction 
+This is a personal copy of a project i worked at my job at Tenzinger Fierit created to automatically check our Progress ABL Coding Standards automatically. 
+
 This is some python scripts that will check your progress code against coding standards before committing. 
 You can either call this script directly or use it an the pre-commit git hook (recommended).
 This is still a work in project but some coding standards are already implemented. 
-The coding standards (to be) implemented are based on https://fierit-cura.atlassian.net/wiki/spaces/RC/pages/384762016/Coding+Standards+Old+see+comment
+The coding standards (to be) implemented are based on [redacted confluence link]
 
 When you use this code in pre-commit hook it will cancel the commit if any warnings are given, if the code adheres to all implemented coding standards the commit will continue
 
@@ -25,7 +27,7 @@ When you use this code in pre-commit hook it will cancel the commit if any warni
 
     3. Cloning this repository
         * Go to the folder one above your cura10303 project, by default this should be C:/dev/cura-117/prj
-        * Open a command window in this folder and type `git clone https://Cura-Gezondheidszorg@dev.azure.com/Cura-Gezondheidszorg/Cura/_git/githook`
+        * Open a command window in this folder and type `git clone [Link to companies repo]`
         ![Git clone](Documentation/Pictures/git_clone.PNG)
         * Create a file `path.txt` in the same folder as CheckCodingStandards.py, and add your cura project path as a first line. Use forward slashes.
           For example:
